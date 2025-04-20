@@ -19,13 +19,28 @@ namespace SocialWelfarre.Controllers
             _context = context;
         }
 
-        // GET: Beneficiaries
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Beneficiaries.Include(b => b.Barangay).Include(b => b.BeneficiaryType);
+            var applicationDbContext = _context.Beneficiaries
+                .Include(b => b.Barangay)
+                .Include(b => b.BeneficiaryType);
+
+            ViewBag.Barangays = _context.Barangays
+                .Select(b => new SelectListItem
+                {
+                    Value = b.Id.ToString(),
+                    Text = b.Barangays
+                }).ToList();
+
+            ViewBag.BeneficiaryTypes = _context.BeneficiaryTypes
+                .Select(bt => new SelectListItem
+                {
+                    Value = bt.Id.ToString(),
+                    Text = bt.BeneficiaryTypes // Assuming BeneficiaryType has a 'Type' field for display
+                }).ToList();
+
             return View(await applicationDbContext.ToListAsync());
         }
-
         // GET: Beneficiaries/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -50,7 +65,7 @@ namespace SocialWelfarre.Controllers
         public IActionResult Create()
         {
             ViewData["BarangayId"] = new SelectList(_context.Barangays, "Id", "Barangays");
-            ViewData["BeneficiaryTypeId"] = new SelectList(_context.BeneficiaryTypes, "Id", "Id");
+            ViewData["BeneficiaryTypeId"] = new SelectList(_context.BeneficiaryTypes, "Id", "BeneficiaryTypes");
             return View();
         }
 
@@ -59,14 +74,13 @@ namespace SocialWelfarre.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,First_Name,Middle_Name,Last_Name,ID_Number,Date_Of_Birth,Contact_Number,Address,BarangayId,Eligibility_Status,BeneficiaryTypeId")] Beneficiary beneficiary)
+        public async Task<IActionResult> Create( Beneficiary beneficiary)
         {
-            if (ModelState.IsValid)
-            {
+           
                 _context.Add(beneficiary);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
-            }
+            
             ViewData["BarangayId"] = new SelectList(_context.Barangays, "Id", "Barangays", beneficiary.BarangayId);
             ViewData["BeneficiaryTypeId"] = new SelectList(_context.BeneficiaryTypes, "Id", "Id", beneficiary.BeneficiaryTypeId);
             return View(beneficiary);
@@ -86,7 +100,7 @@ namespace SocialWelfarre.Controllers
                 return NotFound();
             }
             ViewData["BarangayId"] = new SelectList(_context.Barangays, "Id", "Barangays", beneficiary.BarangayId);
-            ViewData["BeneficiaryTypeId"] = new SelectList(_context.BeneficiaryTypes, "Id", "Id", beneficiary.BeneficiaryTypeId);
+            ViewData["BeneficiaryTypeId"] = new SelectList(_context.BeneficiaryTypes, "Id", "BeneficiaryTypes", beneficiary.BeneficiaryTypeId);
             return View(beneficiary);
         }
 
@@ -122,8 +136,8 @@ namespace SocialWelfarre.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BarangayId"] = new SelectList(_context.Barangays, "Id", "Id", beneficiary.BarangayId);
-            ViewData["BeneficiaryTypeId"] = new SelectList(_context.BeneficiaryTypes, "Id", "Id", beneficiary.BeneficiaryTypeId);
+            ViewData["BarangayId"] = new SelectList(_context.Barangays, "Id", "Barangays", beneficiary.BarangayId);
+            ViewData["BeneficiaryTypeId"] = new SelectList(_context.BeneficiaryTypes, "Id", "BeneficiaryTypes", beneficiary.BeneficiaryTypeId);
             return View(beneficiary);
         }
 

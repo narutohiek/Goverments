@@ -22,7 +22,16 @@ namespace SocialWelfarre.Controllers
         // GET: DisasterKits
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.DisasterKits.Include(d => d.Barangay);
+            var applicationDbContext = _context.DisasterKits
+                .Include(c => c.Barangay);
+
+            ViewBag.Barangays = _context.Barangays
+                .Select(b => new SelectListItem
+                {
+                    Value = b.Id.ToString(),
+                    Text = b.Barangays
+                }).ToList();
+
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -48,7 +57,7 @@ namespace SocialWelfarre.Controllers
         // GET: DisasterKits/Create
         public IActionResult Create()
         {
-            ViewData["BarangayId"] = new SelectList(_context.Barangays, "Id", "Id");
+            ViewData["BarangayId"] = new SelectList(_context.Barangays, "Id", "Barangays");
             return View();
         }
 
@@ -57,14 +66,13 @@ namespace SocialWelfarre.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,First_Name,Middle_Name,Last_Name,BarangayId,Date_Issued,Validate")] DisasterKit disasterKit)
+        public async Task<IActionResult> Create( DisasterKit disasterKit)
         {
-            if (ModelState.IsValid)
-            {
+           
                 _context.Add(disasterKit);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
-            }
+            
             ViewData["BarangayId"] = new SelectList(_context.Barangays, "Id", "Id", disasterKit.BarangayId);
             return View(disasterKit);
         }
@@ -82,7 +90,7 @@ namespace SocialWelfarre.Controllers
             {
                 return NotFound();
             }
-            ViewData["BarangayId"] = new SelectList(_context.Barangays, "Id", "Id", disasterKit.BarangayId);
+            ViewData["BarangayId"] = new SelectList(_context.Barangays, "Id", "Barangays", disasterKit.BarangayId);
             return View(disasterKit);
         }
 
@@ -118,7 +126,7 @@ namespace SocialWelfarre.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BarangayId"] = new SelectList(_context.Barangays, "Id", "Id", disasterKit.BarangayId);
+            ViewData["BarangayId"] = new SelectList(_context.Barangays, "Id", "Barangays", disasterKit.BarangayId);
             return View(disasterKit);
         }
 

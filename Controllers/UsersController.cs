@@ -20,12 +20,38 @@ namespace SocialWelfarre.Controllers
         }
 
         // GET: Users
-        public async Task<IActionResult> Index()
-        {
-            var applicationDbContext = _context.Users.Include(u => u.Department).Include(u => u.Designation).Include(u => u.Role);
-            return View(await applicationDbContext.ToListAsync());
-        }
+      public async Task<IActionResult> Index()
+{
+    // Fetch the users with related data
+    var applicationDbContext = _context.Users
+        .Include(u => u.Department)
+        .Include(u => u.Designation)
+        .Include(u => u.Role);
 
+    // Fetch the lists for dropdowns
+    ViewBag.Roles = _context.Roles
+        .Select(r => new SelectListItem
+        {
+            Value = r.Id.ToString(),
+            Text = r.Roles
+        }).ToList();
+
+    ViewBag.Departments = _context.Departments
+        .Select(d => new SelectListItem
+        {
+            Value = d.Id.ToString(),
+            Text = d.Departments
+        }).ToList();
+
+    ViewBag.Designations = _context.Designations
+        .Select(d => new SelectListItem
+        {
+            Value = d.Id.ToString(),
+            Text = d.Designations
+        }).ToList();
+
+    return View(await applicationDbContext.ToListAsync());
+}
         // GET: Users/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -61,14 +87,13 @@ namespace SocialWelfarre.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,EmpNo,First_Name,Middle_Name,Last_Name,EmailAddress,PhoneNumber,RoleId,DateOfBirth,Address,DepartmentId,DesignationId,CreatedById,CreatedOn,ModifiedById,ModifiedOn")] User user)
+        public async Task<IActionResult> Create( User user)
         {
-            if (ModelState.IsValid)
-            {
+          
                 _context.Add(user);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
-            }
+            
             ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Id", user.DepartmentId);
             ViewData["DesignationId"] = new SelectList(_context.Designations, "Id", "Id", user.DesignationId);
             ViewData["RoleId"] = new SelectList(_context.Roles, "Id", "Id", user.RoleId);

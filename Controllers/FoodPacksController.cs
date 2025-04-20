@@ -20,11 +20,22 @@ namespace SocialWelfarre.Controllers
         }
 
         // GET: FoodPacks
+        
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.FoodPacks.Include(f => f.Barangay);
+            var applicationDbContext = _context.FoodPacks
+                .Include(f => f.Barangay);
+
+            ViewBag.Barangays = _context.Barangays
+                .Select(b => new SelectListItem
+                {
+                    Value = b.Id.ToString(),
+                    Text = b.Barangays
+                }).ToList();
+
             return View(await applicationDbContext.ToListAsync());
         }
+
 
         // GET: FoodPacks/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -48,7 +59,7 @@ namespace SocialWelfarre.Controllers
         // GET: FoodPacks/Create
         public IActionResult Create()
         {
-            ViewData["BarangayId"] = new SelectList(_context.Barangays, "Id", "Id");
+            ViewData["BarangayId"] = new SelectList(_context.Barangays, "Id", "Barangays");
             return View();
         }
 
@@ -57,14 +68,13 @@ namespace SocialWelfarre.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,First_Name,Middle_Name,Last_Name,BarangayId,Date_Issued,Validate")] FoodPack foodPack)
+        public async Task<IActionResult> Create( FoodPack foodPack)
         {
-            if (ModelState.IsValid)
-            {
+            
                 _context.Add(foodPack);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
-            }
+            
             ViewData["BarangayId"] = new SelectList(_context.Barangays, "Id", "Id", foodPack.BarangayId);
             return View(foodPack);
         }
@@ -82,7 +92,7 @@ namespace SocialWelfarre.Controllers
             {
                 return NotFound();
             }
-            ViewData["BarangayId"] = new SelectList(_context.Barangays, "Id", "Id", foodPack.BarangayId);
+            ViewData["BarangayId"] = new SelectList(_context.Barangays, "Id", "Barangays", foodPack.BarangayId);
             return View(foodPack);
         }
 
@@ -118,7 +128,7 @@ namespace SocialWelfarre.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BarangayId"] = new SelectList(_context.Barangays, "Id", "Id", foodPack.BarangayId);
+            ViewData["BarangayId"] = new SelectList(_context.Barangays, "Id", "Barangays", foodPack.BarangayId);
             return View(foodPack);
         }
 

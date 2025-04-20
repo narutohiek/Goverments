@@ -22,7 +22,16 @@ namespace SocialWelfarre.Controllers
         // GET: CertificateOfIndigencies
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.CertificateOfIndigencies.Include(c => c.Barangay);
+            var applicationDbContext = _context.CertificateOfIndigencies
+                .Include(c => c.Barangay);
+
+            ViewBag.Barangays = _context.Barangays
+                .Select(b => new SelectListItem
+                {
+                    Value = b.Id.ToString(),
+                    Text = b.Barangays
+                }).ToList();
+
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -48,7 +57,7 @@ namespace SocialWelfarre.Controllers
         // GET: CertificateOfIndigencies/Create
         public IActionResult Create()
         {
-            ViewData["BarangayId"] = new SelectList(_context.Barangays, "Id", "Id");
+            ViewData["BarangayId"] = new SelectList(_context.Barangays, "Id", "Barangays");
             return View();
         }
 
@@ -57,15 +66,14 @@ namespace SocialWelfarre.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,First_Name,Middle_Name,Last_Name,BarangayId,Date_Issued,Validate")] CertificateOfIndigency certificateOfIndigency)
+        public async Task<IActionResult> Create( CertificateOfIndigency certificateOfIndigency)
         {
-            if (ModelState.IsValid)
-            {
+           
                 _context.Add(certificateOfIndigency);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
-            }
-            ViewData["BarangayId"] = new SelectList(_context.Barangays, "Id", "Id", certificateOfIndigency.BarangayId);
+            
+            ViewData["BarangayId"] = new SelectList(_context.Barangays, "Id", "Barangays", certificateOfIndigency.BarangayId);
             return View(certificateOfIndigency);
         }
 
@@ -82,7 +90,7 @@ namespace SocialWelfarre.Controllers
             {
                 return NotFound();
             }
-            ViewData["BarangayId"] = new SelectList(_context.Barangays, "Id", "Id", certificateOfIndigency.BarangayId);
+            ViewData["BarangayId"] = new SelectList(_context.Barangays, "Id", "Barangays", certificateOfIndigency.BarangayId);
             return View(certificateOfIndigency);
         }
 
@@ -118,7 +126,7 @@ namespace SocialWelfarre.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BarangayId"] = new SelectList(_context.Barangays, "Id", "Id", certificateOfIndigency.BarangayId);
+            ViewData["BarangayId"] = new SelectList(_context.Barangays, "Id", "Barangays", certificateOfIndigency.BarangayId);
             return View(certificateOfIndigency);
         }
 
